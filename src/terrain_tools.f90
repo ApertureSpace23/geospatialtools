@@ -1129,7 +1129,7 @@ subroutine calculate_channels_wocean_wprop_wcrds(area_in,area_all_in,threshold,&
   
   !Determine if there are still are cells
   if (maxval(cmask) .eq. 0) bool = .True.
-  if ((cid > nx) or (cid > ny)) bool = .True.
+  if (cid >= nx) bool = .True.
 
   !Maskout the area
   where (cmask .eq. 0) 
