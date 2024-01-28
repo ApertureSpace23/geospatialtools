@@ -1129,6 +1129,7 @@ subroutine calculate_channels_wocean_wprop_wcrds(area_in,area_all_in,threshold,&
   
   !Determine if there are still are cells
   if (maxval(cmask) .eq. 0) bool = .True.
+  if ((cid > nx) or (cid > ny)) bool = .True.
 
   !Maskout the area
   where (cmask .eq. 0) 
@@ -1183,11 +1184,11 @@ subroutine calculate_channels_wocean_wprop_wcrds(area_in,area_all_in,threshold,&
   cmask(i,j) = 0
 
   !Go upstream
-  call channels_upstream_wprop_wcrds(i,j,fdir,channels,positions,nx,ny,cid,npos,&
-                         cmask,basin_threshold,area,hcid,channel_topology,&
-                         shreve_order,lats,lons,crds,crds_count,&
-                         mask_all,area_all,channel_inlet_id,channel_inlet_target_nmp,&
-                         channel_inlet_target_crds)
+  !call channels_upstream_wprop_wcrds(i,j,fdir,channels,positions,nx,ny,cid,npos,&
+  !                       cmask,basin_threshold,area,hcid,channel_topology,&
+  !                       shreve_order,lats,lons,crds,crds_count,&
+  !                       mask_all,area_all,channel_inlet_id,channel_inlet_target_nmp,&
+  !                       channel_inlet_target_crds)
 
  enddo
  
@@ -1195,7 +1196,7 @@ subroutine calculate_channels_wocean_wprop_wcrds(area_in,area_all_in,threshold,&
  channels_wob = channels
 
  !Set the ocean/land, lake/land, and glacier/land boundaries as "channels"
- cid = 999999!max(maxval(channels),1)
+ cid = max(maxval(channels),1) !999999!
  do i = 1,nx
   do j = 1,ny
    !Determine if this point is not "land"
