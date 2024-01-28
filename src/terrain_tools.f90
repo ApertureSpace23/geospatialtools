@@ -1073,7 +1073,7 @@ subroutine calculate_channels_wocean_wprop_wcrds(area_in,area_all_in,threshold,&
  integer,intent(out),dimension(nx*ny,4) :: channel_inlet_target_nmp
  real*8,intent(out),dimension(nx*ny,4,2) :: channel_inlet_target_crds
  !The dimensions of crds are just for pure convenience
- real*8,intent(out),dimension(nx,ny,2) :: crds
+ real*8,intent(out),dimension(10000,10000,2) :: crds
  !integer,dimension(nx*ny) :: channel_outlet_id,channel_outlet_target_nmp
  !integer,dimension(nx*ny,2) :: channel_outlet_target_crds
  real,dimension(nx,ny) :: area,area_all
