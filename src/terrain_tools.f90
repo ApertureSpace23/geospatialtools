@@ -1073,7 +1073,7 @@ subroutine calculate_channels_wocean_wprop_wcrds(area_in,area_all_in,threshold,&
  integer,intent(out),dimension(nx*ny,4) :: channel_inlet_target_nmp
  real*8,intent(out),dimension(nx*ny,4,2) :: channel_inlet_target_crds
  !The dimensions of crds are just for pure convenience
- real*8,intent(out),dimension(10000,10000,2) :: crds
+ real*8,intent(out),dimension(100000,1000,2) :: crds
  !integer,dimension(nx*ny) :: channel_outlet_id,channel_outlet_target_nmp
  !integer,dimension(nx*ny,2) :: channel_outlet_target_crds
  real,dimension(nx,ny) :: area,area_all
@@ -1129,7 +1129,6 @@ subroutine calculate_channels_wocean_wprop_wcrds(area_in,area_all_in,threshold,&
   
   !Determine if there are still are cells
   if (maxval(cmask) .eq. 0) bool = .True.
-  if (cid >= nx) bool = .True.
 
   !Maskout the area
   where (cmask .eq. 0) 
@@ -1184,11 +1183,11 @@ subroutine calculate_channels_wocean_wprop_wcrds(area_in,area_all_in,threshold,&
   cmask(i,j) = 0
 
   !Go upstream
-  !call channels_upstream_wprop_wcrds(i,j,fdir,channels,positions,nx,ny,cid,npos,&
-  !                       cmask,basin_threshold,area,hcid,channel_topology,&
-  !                       shreve_order,lats,lons,crds,crds_count,&
-  !                       mask_all,area_all,channel_inlet_id,channel_inlet_target_nmp,&
-  !                       channel_inlet_target_crds)
+  call channels_upstream_wprop_wcrds(i,j,fdir,channels,positions,nx,ny,cid,npos,&
+                         cmask,basin_threshold,area,hcid,channel_topology,&
+                         shreve_order,lats,lons,crds,crds_count,&
+                         mask_all,area_all,channel_inlet_id,channel_inlet_target_nmp,&
+                         channel_inlet_target_crds)
 
  enddo
  
@@ -1196,7 +1195,7 @@ subroutine calculate_channels_wocean_wprop_wcrds(area_in,area_all_in,threshold,&
  channels_wob = channels
 
  !Set the ocean/land, lake/land, and glacier/land boundaries as "channels"
- cid = max(maxval(channels),1) !999999!
+ cid = 999999!max(maxval(channels),1)
  do i = 1,nx
   do j = 1,ny
    !Determine if this point is not "land"
@@ -1243,7 +1242,7 @@ recursive subroutine channels_upstream_wprop_wcrds(i,j,fdir,channels,positions,n
  integer,intent(in) :: mask_all(nx,ny)
  integer,intent(inout) :: shreve_order(nx,ny),crds_count(100000)
  real*8,intent(in) :: lats(nx,ny),lons(nx,ny)
- real*8,intent(inout) :: crds(10000,10000,2)
+ real*8,intent(inout) :: crds(100000,1000,2)
  integer,intent(inout),dimension(nx*ny) :: channel_inlet_id
  integer,intent(inout),dimension(nx*ny,4) :: channel_inlet_target_nmp
  real*8,intent(inout),dimension(nx*ny,4,2) :: channel_inlet_target_crds
