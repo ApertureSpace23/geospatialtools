@@ -1183,7 +1183,7 @@ subroutine calculate_channels_wocean_wprop_wcrds(area_in,area_all_in,threshold,&
   cmask(i,j) = 0
 
   !Go upstream
-  call channels_upstream_wprop_wcrds(i,j,fdir,channels,positions,nx,ny,cid,npos,&
+  call channels_upstream_wprop_wcrds(i,j,fdir,channels,positions,nx,ny,n_crds,cid,npos,&
                          cmask,basin_threshold,area,hcid,channel_topology,&
                          shreve_order,lats,lons,crds,crds_count,&
                          mask_all,area_all,channel_inlet_id,channel_inlet_target_nmp,&
@@ -1298,7 +1298,7 @@ recursive subroutine channels_upstream_wprop_wcrds(i,j,fdir,channels,positions,n
      !Memorize the coordinates (of the downstream reach; this creates the link)
      crds(cid,crds_count(cid),1) = lats(inew,jnew)
      crds(cid,crds_count(cid),2) = lons(inew,jnew)
-     call channels_upstream_wprop_wcrds(inew,jnew,fdir,channels,positions,nx,ny,&
+     call channels_upstream_wprop_wcrds(inew,jnew,fdir,channels,positions,nx,ny,n_crds,&
                              cid,npos,mask,basin_threshold,area,hcid,&
                              channel_topology,shreve_order,lats,lons,crds,crds_count,&
                              mask_all,area_all,channel_inlet_id,channel_inlet_target_nmp,&
@@ -1333,7 +1333,7 @@ recursive subroutine channels_upstream_wprop_wcrds(i,j,fdir,channels,positions,n
       crds(cid,crds_count(cid),2) = lons(inew,jnew)
       !Update the position of the last coordinate
       crds_count(cid) =  crds_count(cid) + 1
-      call channels_upstream_wprop_wcrds(inew,jnew,fdir,channels,positions,nx,ny,&
+      call channels_upstream_wprop_wcrds(inew,jnew,fdir,channels,positions,nx,ny,n_crds,&
                              cid,npos,mask,basin_threshold,area,hcid,&
                              channel_topology,shreve_order,lats,lons,crds,crds_count,&
                              mask_all,area_all,channel_inlet_id,channel_inlet_target_nmp,&
@@ -1345,7 +1345,7 @@ recursive subroutine channels_upstream_wprop_wcrds(i,j,fdir,channels,positions,n
      ! !Memorize the coordinates (of the downstream reach; this creates the link)
      ! crds(cid,crds_count(cid),1) = lats(inew,jnew)
      ! crds(cid,crds_count(cid),2) = lons(inew,jnew)
-     ! call channels_upstream_wprop_wcrds(inew,jnew,fdir,channels,positions,nx,ny,&
+     ! call channels_upstream_wprop_wcrds(inew,jnew,fdir,channels,positions,nx,ny,n_crds,&
      !                        cid_org,npos,mask,basin_threshold,area,hcid,&
      !                        channel_topology,shreve_order,lats,lons,crds,crds_count,&
      !                        mask_all,area_all,channel_inlet_id,channel_inlet_target_nmp,&
