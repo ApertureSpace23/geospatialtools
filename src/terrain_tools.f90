@@ -1053,13 +1053,13 @@ end subroutine
 
 subroutine calculate_channels_wocean_wprop_wcrds(area_in,area_all_in,threshold,&
                 basin_threshold,fdir,mask,mask_all,lats,lons,channels,channels_wob,&
-                channel_topology,shreve_order,crds,channel_outlet_id,&
+                channel_topology,shreve_order,crds,n_crds,channel_outlet_id,&
                 channel_outlet_target_nmp,channel_outlet_target_crds,&
                 channel_inlet_id,channel_inlet_target_nmp,&
                 channel_inlet_target_crds,nx,ny)
 
  implicit none
- integer,intent(in) :: nx,ny
+ integer,intent(in) :: nx,ny,n_crds
  real,intent(in) :: threshold,basin_threshold
  real,intent(in),dimension(nx,ny) :: area_in,area_all_in,mask
  real*8,intent(in),dimension(nx,ny) :: lats,lons
@@ -1073,12 +1073,12 @@ subroutine calculate_channels_wocean_wprop_wcrds(area_in,area_all_in,threshold,&
  integer,intent(out),dimension(nx*ny,4) :: channel_inlet_target_nmp
  real*8,intent(out),dimension(nx*ny,4,2) :: channel_inlet_target_crds
  !The dimensions of crds are just for pure convenience
- real*8,intent(out),dimension(nx*ny,1000,2) :: crds
+ real*8,intent(out),dimension(n_crds,1000,2) :: crds
  !integer,dimension(nx*ny) :: channel_outlet_id,channel_outlet_target_nmp
  !integer,dimension(nx*ny,2) :: channel_outlet_target_crds
  real,dimension(nx,ny) :: area,area_all
  integer,dimension(nx,ny) :: cmask
- integer,dimension(nx*ny) :: crds_count
+ integer,dimension(n_crds) :: crds_count
  integer,dimension(2) :: placement
  integer,dimension(:,:),allocatable :: positions
  integer :: i,j,pos,cid,k,l,npos,imin,imax,jmin,jmax,hcid,inew,jnew,m
@@ -1235,14 +1235,14 @@ recursive subroutine channels_upstream_wprop_wcrds(i,j,fdir,channels,positions,n
                              channel_inlet_target_crds)
 
  implicit none
- integer,intent(in) :: npos,i,j,nx,ny
+ integer,intent(in) :: npos,i,j,nx,ny,n_crds
  integer,intent(in) :: positions(npos,2),fdir(nx,ny,2)
  real,intent(in) :: basin_threshold,area(nx,ny),area_all(nx,ny)
  integer,intent(inout) :: cid,channels(nx,ny),mask(nx,ny),hcid,channel_topology(nx*ny)
  integer,intent(in) :: mask_all(nx,ny)
- integer,intent(inout) :: shreve_order(nx,ny),crds_count(nx*ny)
+ integer,intent(inout) :: shreve_order(nx,ny),crds_count(n_crds)
  real*8,intent(in) :: lats(nx,ny),lons(nx,ny)
- real*8,intent(inout) :: crds(nx*ny,1000,2)
+ real*8,intent(inout) :: crds(n_crds,1000,2)
  integer,intent(inout),dimension(nx*ny) :: channel_inlet_id
  integer,intent(inout),dimension(nx*ny,4) :: channel_inlet_target_nmp
  real*8,intent(inout),dimension(nx*ny,4,2) :: channel_inlet_target_crds
