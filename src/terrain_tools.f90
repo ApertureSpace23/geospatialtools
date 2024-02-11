@@ -1228,7 +1228,7 @@ subroutine calculate_channels_wocean_wprop_wcrds(area_in,area_all_in,threshold,&
 
 end subroutine
 
-recursive subroutine channels_upstream_wprop_wcrds(i,j,fdir,channels,positions,nx,ny,cid,npos,&
+recursive subroutine channels_upstream_wprop_wcrds(i,j,fdir,channels,positions,nx,ny,n_crds,cid,npos,&
                              mask,basin_threshold,area,hcid,channel_topology,shreve_order,&
                              lats,lons,crds,crds_count,mask_all,area_all,&
                              channel_inlet_id,channel_inlet_target_nmp,&
