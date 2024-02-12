@@ -1078,7 +1078,7 @@ subroutine calculate_channels_wocean_wprop_wcrds(area_in,area_all_in,threshold,&
  !integer,dimension(nx*ny,2) :: channel_outlet_target_crds
  real,dimension(nx,ny) :: area,area_all
  integer,dimension(nx,ny) :: cmask
- integer,dimension(100000) :: crds_count
+ integer,dimension(500000) :: crds_count
  integer,dimension(2) :: placement
  integer,dimension(:,:),allocatable :: positions
  integer :: i,j,pos,cid,k,l,npos,imin,imax,jmin,jmax,hcid,inew,jnew,m
@@ -1240,7 +1240,7 @@ recursive subroutine channels_upstream_wprop_wcrds(i,j,fdir,channels,positions,n
  real,intent(in) :: basin_threshold,area(nx,ny),area_all(nx,ny)
  integer,intent(inout) :: cid,channels(nx,ny),mask(nx,ny),hcid,channel_topology(nx*ny)
  integer,intent(in) :: mask_all(nx,ny)
- integer,intent(inout) :: shreve_order(nx,ny),crds_count(100000)
+ integer,intent(inout) :: shreve_order(nx,ny),crds_count(500000)
  real*8,intent(in) :: lats(nx,ny),lons(nx,ny)
  real*8,intent(inout) :: crds(10000,10000,2)
  integer,intent(inout),dimension(nx*ny) :: channel_inlet_id
