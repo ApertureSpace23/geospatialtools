@@ -1557,7 +1557,7 @@ subroutine delineate_basins_iter(channels,basins,mask,fdir,nx,ny)
  do i=1,nx
   do j=1,ny
    !Only work on this cell if the basin id is unknown and the mask is positive
-   if ((basins(i,j) .eq. 0) .and. (mask(i,j) .ge. 1)) then
+   if ((basins(i,j) .eq. 0) .and. (mask(i,j) .ge. 1))then
     idx = 1
     istack(idx) = i
     jstack(idx) = j
@@ -1565,9 +1565,9 @@ subroutine delineate_basins_iter(channels,basins,mask,fdir,nx,ny)
      inew = fdir(istack(idx),jstack(idx),1)
      jnew = fdir(istack(idx),jstack(idx),2)
 
-     if ((inew.lt.1).or.(jnew.lt.1).or.(inew.gt.nx).or.(jnew.gt.ny)) exit
-     if (mask(i,j) .eq. 0) exit
-     if (basins(inew,jnew) .gt. 0) then
+     if ((inew.lt.1).or.(jnew.lt.1).or.(inew.gt.nx).or.(jnew.gt.ny))exit
+     if (mask(i,j) .eq. 0)exit
+     if (basins(inew,jnew) .gt. 0)then
       basins(istack(idx),jstack(idx)) = basins(inew,jnew)
       idx = idx - 1
      else
