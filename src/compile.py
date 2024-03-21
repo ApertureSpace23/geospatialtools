@@ -11,7 +11,7 @@ subroutines = 'calculate_d8_acc \
               calculate_d8_acc_pfdir \
               calculate_d8_acc_wipoints \
               calculate_d8_acc_wipoints_pfdir \
-	      calculate_d8_acc_neighbors \
+	          calculate_d8_acc_neighbors \
               calculate_mfd_acc \
               neighbr_check_d8 \
               cleanup_hillslopes \
@@ -19,6 +19,7 @@ subroutines = 'calculate_d8_acc \
               calculate_channels_wocean \
               calculate_channels_wocean_wprop \
               calculate_channels_wocean_wprop_wcrds \
+              delineate_basins_iter \
               delineate_basins \
               delineate_hillslopes \
               assign_properties_to_hillslopes \
