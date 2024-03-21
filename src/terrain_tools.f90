@@ -1547,7 +1547,7 @@ subroutine delineate_basins_iter(channels,basins,mask,fdir,nx,ny)
  integer,intent(in),dimension(nx,ny,2) :: fdir
  integer,intent(in),dimension(nx,ny) :: mask
  integer,intent(out),dimension(nx,ny) :: basins
- integer,dimension(10000) :: istack,jstack
+ integer,dimension(1000000) :: istack,jstack
  integer :: i,j,idx,inew,jnew
    
  !Initialize the basin delineation to the channel network (everythin else 0)
