@@ -1539,44 +1539,47 @@ recursive subroutine channels_upstream(i,j,fdir,channels,positions,nx,ny,cid,npo
 
 end subroutine
 
-subroutine delineate_basins(channels,basins,mask,fdir,nx,ny)
+subroutine delineate_basins_iter(channels,basins,mask,fdir,nx,ny)
 
-    implicit none
-    integer,intent(in) :: nx,ny
-    integer,intent(in) :: channels(nx,ny),mask(nx,ny),fdir(nx,ny,2)
-    integer,intent(out) :: basins(nx,ny)
-    integer :: i,j,idx,inew,jnew,istack(100000),jstack(100000)
+ implicit none
+ integer,intent(in) :: nx,ny
+ integer,intent(in),dimension(nx,ny) :: channels
+ integer,intent(in),dimension(nx,ny,2) :: fdir
+ integer,intent(in),dimension(nx,ny) :: mask
+ integer,intent(out),dimension(nx,ny) :: basins
+ integer,dimension(10000) :: istack,jstack
+ integer :: i,j,idx,inew,jnew
    
-    !Initialize the basin delineation to the channel network (everythin else 0)
-    basins = channels
+ !Initialize the basin delineation to the channel network (everythin else 0)
+ basins = channels
    
-    !Iterate cell by cell
-    do i=1,nx
-        do j=1,ny
-            !Only work on this cell if the basin id is unknown and the mask is positive
-            if ((basins(i,j) .eq. 0) .and. (mask(i,j) .ge. 1)) then
-                idx = 1
-                istack(idx) = i
-                jstack(idx) = j
-                do while (idx.gt.0)
-                    inew = fdir(istack(idx),jstack(idx),1)
-                    jnew = fdir(istack(idx),jstack(idx),2)
+ !Iterate cell by cell
+ do i=1,nx
+  do j=1,ny
+   !Only work on this cell if the basin id is unknown and the mask is positive
+   if ((basins(i,j) .eq. 0) .and. (mask(i,j) .ge. 1)) then
+    idx = 1
+    istack(idx) = i
+    jstack(idx) = j
+    do while (idx.gt.0)
+     inew = fdir(istack(idx),jstack(idx),1)
+     jnew = fdir(istack(idx),jstack(idx),2)
 
-                    if ((inew.lt.1).or.(jnew.lt.1).or.(inew.gt.nx).or.(jnew.gt.ny)) exit
-                    if (mask(i,j) .eq. 0) exit
-                    if (basins(inew,jnew) .gt. 0) then
-                        basins(istack(idx),jstack(idx)) = basins(inew,jnew)
-                        idx = idx - 1
-                    else
-                        idx = idx + 1
-                        istack(idx) = inew
-                        jstack(idx) = jnew
+     if ((inew.lt.1).or.(jnew.lt.1).or.(inew.gt.nx).or.(jnew.gt.ny)) exit
+     if (mask(i,j) .eq. 0) exit
+     if (basins(inew,jnew) .gt. 0) then
+      basins(istack(idx),jstack(idx)) = basins(inew,jnew)
+      idx = idx - 1
+     else
+      idx = idx + 1
+      istack(idx) = inew
+      jstack(idx) = jnew
 
-                    endif
-                enddo
-            endif
-        enddo
+     endif
     enddo
+   endif
+  enddo
+ enddo
 end subroutine
 
 subroutine delineate_basins(channels,basins,mask,fdir,nx,ny)
