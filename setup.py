@@ -1,28 +1,30 @@
-import setuptools
+from setuptools import setup, Extension
+from setuptools.command.build_ext import build_ext
+import numpy
 
-def configuration(parent_package='', top_path=None):
+class BuildExt(build_ext):
+    def build_extensions(self):
+        self.include_dirs.append(numpy.get_include())
+        super().build_extensions()
 
-    from numpy.distutils.misc_util import Configuration
-    from numpy.distutils.core import Extension
+# Define a simple extension for demonstration, replace with your actual Fortran compilation
+extensions = [
+    Extension(
+        'geospatialtools.terrain_tools_fortran',
+        sources=['src/planchon_2001.f90', 'src/terrain_tools.f90'],
+        extra_compile_args=['-fPIC', '-Wall', '-pedantic', '-O3']
+    ),
+    Extension(
+        'geospatialtools.upscaling_tools_fortran',
+        sources=['src/upscaling_tools.f90'],
+        extra_compile_args=['-fPIC', '-Wall', '-pedantic', '-O3']
+    )
+]
 
-    config = Configuration('geospatialtools', parent_package, top_path)
-
-    config.add_extension('terrain_tools_fortran',
-                         sources=['src/planchon_2001.f90','src/terrain_tools.f90'],
-                         extra_f90_compile_args = ['-fPIC','-Wall','-pedantic','-O3']
-                        ),
-
-    config.add_extension('upscaling_tools_fortran',
-                         sources=['src/upscaling_tools.f90'],
-                         extra_f90_compile_args = ['-fPIC','-Wall','-pedantic','-O3']
-                         #extra_f90_compile_args = ['-O3','-nostartfiles']
-                        ),
-
-    config.add_subpackage('',subpackage_path='libraries')
-                        
-
-    return config
-
-if __name__ == '__main__':
-    from numpy.distutils.core import setup
-    setup(**configuration(top_path='').todict())
+setup(
+    name='geospatialtools',
+    version='0.1',
+    packages=['geospatialtools'],
+    ext_modules=extensions,
+    cmdclass={'build_ext': BuildExt}
+)
