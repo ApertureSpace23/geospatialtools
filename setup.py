@@ -34,6 +34,7 @@ setup(
     install_requires=[
         "numpy>=1.26.4"  # ensure dependencies are listed correctly
     ],
+    package_dir={"": "libraries"},
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
