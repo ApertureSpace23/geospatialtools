@@ -21,6 +21,8 @@ class CustomBuildExtCommand(build_ext):
         # Call the original build_ext command
         super().run()
 
+# Diagnostic print to see what packages find_packages is finding
+print("Packages found:", find_packages(where='libraries'))
 
 setup(
     name="geospatialtools",
@@ -28,8 +30,7 @@ setup(
     author="Your Name",
     author_email="your.email@example.com",
     description="A collection of geospatial tools.",
-    packages=find_packages(where='libraries'),  # Look for packages in 'libraries' directory
-    package_dir={'': 'libraries'},  # Set the root directory for packages to 'libraries'
+    packages=find_packages(where='libraries'),  # Adjust this if your package layout is different
     install_requires=[
         "numpy>=1.26.4"  # ensure dependencies are listed correctly
     ],
