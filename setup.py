@@ -1,30 +1,44 @@
-from setuptools import setup, Extension
+import setuptools
+from setuptools import setup, find_packages
 from setuptools.command.build_ext import build_ext
-import numpy
+import os
+import subprocess
 
-class BuildExt(build_ext):
-    def build_extensions(self):
-        self.include_dirs.append(numpy.get_include())
-        super().build_extensions()
-
-# Define a simple extension for demonstration, replace with your actual Fortran compilation
-extensions = [
-    Extension(
-        'geospatialtools.terrain_tools_fortran',
-        sources=['src/planchon_2001.f90', 'src/terrain_tools.f90'],
-        extra_compile_args=['-fPIC', '-Wall', '-pedantic', '-O3']
-    ),
-    Extension(
-        'geospatialtools.upscaling_tools_fortran',
-        sources=['src/upscaling_tools.f90'],
-        extra_compile_args=['-fPIC', '-Wall', '-pedantic', '-O3']
-    )
-]
+class CustomBuildExtCommand(build_ext):
+    """Custom command to compile Fortran files using f2py before building the package."""
+    def run(self):
+        # Compile Fortran modules
+        f2py_cmds = [
+            ('terrain_tools_fortran', ['src/planchon_2001.f90', 'src/terrain_tools.f90']),
+            ('upscaling_tools_fortran', ['src/upscaling_tools.f90'])
+        ]
+        for mod_name, sources in f2py_cmds:
+            try:
+                # You can customize the f2py command according to your compilation preferences
+                subprocess.check_call(['f2py', '-c', '-m', mod_name] + sources + ['-fPIC', '-Wall', '-pedantic', '-O3'])
+            except subprocess.CalledProcessError as e:
+                raise RuntimeError("f2py failed to compile: " + ' '.join(e.cmd))
+        # Call the original build_ext command
+        super().run()
 
 setup(
     name='geospatialtools',
-    version='0.1',
-    packages=['geospatialtools'],
-    ext_modules=extensions,
-    cmdclass={'build_ext': BuildExt}
+    version='0.1.0',
+    author='Your Name',
+    author_email='your.email@example.com',
+    description='A collection of tools for geospatial data processing, including Fortran extensions.',
+    packages=find_packages('src'),
+    package_dir={'': 'src'},
+    cmdclass={
+        'build_ext': CustomBuildExtCommand,
+    },
+    classifiers=[
+        "Programming Language :: Python :: 3",
+        "License :: OSI Approved :: MIT License",
+        "Operating System :: OS Independent",
+    ],
+    python_requires='>=3.6',
+    install_requires=[
+        'numpy>=1.26.4'
+    ],
 )
