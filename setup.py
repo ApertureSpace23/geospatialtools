@@ -18,7 +18,7 @@ def configuration(parent_package='', top_path=None):
                       ['src/upscaling_tools.f90'],
                       extra_compile_args=['-fPIC', '-Wall', '-pedantic', '-O3'])
         ],
-        'package_dir': {'': 'libraries'},
+        'package_dir': {'geospatialtools': 'libraries'},
         'install_requires': [
             'numpy>=' + numpy.__version__,
         ],
