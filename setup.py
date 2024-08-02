@@ -22,24 +22,21 @@ class CustomBuildExtCommand(build_ext):
         super().run()
 
 
-setuptools.setup(
-    name='geospatialtools',
-    version='0.1.0',
-    author='Your Name',
-    author_email='your.email@example.com',
-    description='A collection of tools for geospatial data processing, including Fortran extensions.',
-    packages=setuptools.find_packages(),
+setup(
+    name="geospatialtools",
+    version="0.1.0",
+    author="Your Name",
+    author_email="your.email@example.com",
+    description="A collection of geospatial tools.",
+    packages=find_packages(where='libraries'),  # find packages in the libraries directory
+    package_dir={'': 'libraries'},  # tell distutils that the packages are under 'libraries'
     install_requires=[
-        'numpy>=1.26.4',  # Ensure numpy version compatibility
+        "numpy>=1.26.4"  # ensure dependencies are listed correctly
     ],
     classifiers=[
-        'Development Status :: 3 - Alpha',
-        'Intended Audience :: Developers',
-        'Topic :: Software Development :: Build Tools',
-        'License :: OSI Approved :: MIT License',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.12',
+        "Programming Language :: Python :: 3",
+        "License :: OSI Approved :: MIT License",
+        "Operating System :: OS Independent",
     ],
-    python_requires='>=3.10',
-    package_dir={'': 'libraries'},  # Define the root directory for your packages
+    python_requires='>=3.12',
 )
