@@ -30,11 +30,14 @@ setup(
     author="Your Name",
     author_email="your.email@example.com",
     description="A collection of geospatial tools.",
-    packages=find_packages(where='libraries'),  # Adjust this if your package layout is different
+    packages=['geospatialtools', 'geospatialtools.libraries'],
+    package_dir={
+        'geospatialtools': 'libraries',  # Point to the 'libraries' directory for the root package
+        'geospatialtools.libraries': 'libraries'  # Sub-packages are also in 'libraries'
+    },
     install_requires=[
         "numpy>=1.26.4"  # ensure dependencies are listed correctly
     ],
-    package_dir={"": "libraries"},
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
