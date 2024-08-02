@@ -28,8 +28,8 @@ setup(
     author="Your Name",
     author_email="your.email@example.com",
     description="A collection of geospatial tools.",
-    packages=find_packages(where='libraries'),  # find packages in the libraries directory
-    package_dir={'': 'libraries'},  # tell distutils that the packages are under 'libraries'
+    packages=find_packages(where='libraries'),  # Look for packages in 'libraries' directory
+    package_dir={'': 'libraries'},  # Set the root directory for packages to 'libraries'
     install_requires=[
         "numpy>=1.26.4"  # ensure dependencies are listed correctly
     ],
