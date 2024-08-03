@@ -1,29 +1,30 @@
-from setuptools import setup, find_packages, Extension
-import numpy
+import os
+from setuptools import setup, Extension
+from setuptools.command.build_ext import build_ext
 
 
-def configuration(parent_package='', top_path=None):
-    config = {
-        'name': 'geospatialtools',
-        'version': '0.1.0',
-        'description': 'A collection of geospatial tools including Fortran extensions.',
-        'author': 'Your Name',
-        'author_email': 'your.email@example.com',
-        'packages': find_packages(),
-        'ext_modules': [
-            Extension('geospatialtools.terrain_tools_fortran',
-                      ['src/planchon_2001.f90', 'src/terrain_tools.f90'],
-                      extra_compile_args=['-fPIC', '-Wall', '-pedantic', '-O3']),
-            Extension('geospatialtools.upscaling_tools_fortran',
-                      ['src/upscaling_tools.f90'],
-                      extra_compile_args=['-fPIC', '-Wall', '-pedantic', '-O3'])
-        ],
-        'package_dir': {'geospatialtools': 'libraries'},
-        'install_requires': [
-            'numpy>=' + numpy.__version__,
-        ],
-    }
-    return config
+class CustomBuildExtCommand(build_ext):
+    """Custom command to build Fortran files before building the Python extension."""
+    def run(self):
+        # Compile Fortran files into object files using gfortran
+        os.system("gfortran -c -o src/planchon_2001.o src/planchon_2001.f90 -fPIC -O3 -Wall -pedantic")
+        os.system("gfortran -c -o src/terrain_tools.o src/terrain_tools.f90 -fPIC -O3 -Wall -pedantic")
+        os.system("gfortran -c -o src/upscaling_tools.o src/upscaling_tools.f90 -fPIC -O3 -Wall -pedantic")
+        super().run()
 
-if __name__ == '__main__':
-    setup(**configuration())
+
+setup(
+    name='geospatialtools',
+    version='0.1.0',
+    packages=['geospatialtools'],
+    package_dir={'geospatialtools': 'libraries'},
+    ext_modules=[
+        Extension('geospatialtools.terrain_tools_fortran',
+                  sources=['src/planchon_2001.o', 'src/terrain_tools.o']),
+        Extension('geospatialtools.upscaling_tools_fortran',
+                  sources=['src/upscaling_tools.o'])
+    ],
+    cmdclass={
+        'build_ext': CustomBuildExtCommand,
+    },
+)
