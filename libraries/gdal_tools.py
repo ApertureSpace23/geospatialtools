@@ -1,10 +1,6 @@
-import osgeo.gdal as gdal
-import osgeo
 import os
-from osgeo import osr
+from osgeo import gdal, osr
 import numpy as np
-import osgeo
-import os
 
 def extract_point_data(file,lats,lons,undef=-9999.0):
  
@@ -84,7 +80,7 @@ class raster_data:
   gt = dataset.GetGeoTransform()
   cols = dataset.RasterXSize
   rows = dataset.RasterYSize
-  srs = osgeo.osr.SpatialReference()
+  srs = osr.SpatialReference()
   srs.ImportFromWkt(dataset.GetProjection())
   self.proj4 = srs.ExportToProj4()
   self.minx = gt[0]
@@ -103,9 +99,9 @@ class raster_data:
   x = (self.minx + self.maxx)/2
   y = (self.miny + self.maxy)/2
   source = srs
-  target = osgeo.osr.SpatialReference()
+  target = osr.SpatialReference()
   target.ImportFromEPSG(4326)
-  transform = osgeo.osr.CoordinateTransformation(source, target)
+  transform = osr.CoordinateTransformation(source, target)
   center = transform.TransformPoint(x,y)
   #1.Determine the boundary lat/lon
   x = (self.minx + self.maxx)/2
@@ -180,7 +176,7 @@ def shapefile2raster(raster_in,shp_in,raster_out,workspace,field,layer):
  gt = ds.GetGeoTransform()
  cols = ds.RasterXSize
  rows = ds.RasterYSize
- srs = osgeo.osr.SpatialReference()
+ srs = osr.SpatialReference()
  srs.ImportFromWkt(ds.GetProjection())
  proj4 = srs.ExportToProj4()
 
@@ -222,7 +218,7 @@ def retrieve_metadata(raster):
  gt = ds.GetGeoTransform()
  cols = ds.RasterXSize
  rows = ds.RasterYSize
- srs = osgeo.osr.SpatialReference()
+ srs = osr.SpatialReference()
  srs.ImportFromWkt(ds.GetProjection())
  metadata['proj4'] = srs.ExportToProj4()
  metadata['minx'] = gt[0]

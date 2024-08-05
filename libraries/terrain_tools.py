@@ -1,7 +1,8 @@
 import numpy as np
 #import terrain_tools_fortran as ttf
-from . import terrain_tools_fortran as ttf
+# from . import terrain_tools_fortran as ttf
 from . import metrics 
+import fmodpy
 import sklearn.cluster
 import sklearn.linear_model
 #import shapely
@@ -55,11 +56,11 @@ class terrain_analysis:
   #Basin area
   self.basin_area = self.dx**2*np.sum(self.mask)
   #Sink fill
-  self.demns = ttf.remove_pits_planchon(self.dem,self.dx)
+  self.demns = fmodpy.fimport('../src/terrain_tools.f90').remove_pits_planchon(self.dem,self.dx)
   #Slope and aspect
   res_array = np.copy(self.dem)
   res_array[:] = self.dx
-  (slope,aspect) = ttf.calculate_slope_and_aspect(np.flipud(self.dem),res_array,res_array)
+  (slope,aspect) = fmodpy.fimport('../src/terrain_tools.f90').calculate_slope_and_aspect(np.flipud(self.dem),res_array,res_array)
   self.slope = np.flipud(slope)
   self.aspect = np.flipud(aspect)
   #QC
@@ -69,7 +70,7 @@ class terrain_analysis:
 
  def calculate_drainage_area(self,):
 
-  (self.acc,self.fdir) = ttf.calculate_d8_acc(self.demns,self.mask,self.dx)
+  (self.acc,self.fdir) = fmodpy.fimport('../src/terrain_tools.f90').calculate_d8_acc(self.demns,self.mask,self.dx)
 
   return
   
@@ -80,7 +81,7 @@ class terrain_analysis:
   y = np.linspace(self.bounds.left+self.res[1]/2,self.bounds.right-self.res[1]/2,self.acc.shape[1])
   (xs,ys) = np.meshgrid(x,y)
   thld = self.channel_threshold
-  (channels,channels_wob,channel_topology,tmp1,crds) = ttf.calculate_channels_wocean_wprop_wcrds(self.acc,thld,thld,self.fdir,self.mask,np.flipud(xs.T),ys.T)
+  (channels,channels_wob,channel_topology,tmp1,crds) = fmodpy.fimport('../src/terrain_tools.f90').calculate_channels_wocean_wprop_wcrds(self.acc,thld,thld,self.fdir,self.mask,np.flipud(xs.T),ys.T)
   #Compute and output the list of the channel positions
   lst_crds = []
   for icrd in range(crds.shape[0]):
@@ -129,7 +130,7 @@ class terrain_analysis:
 
  def delineate_basins(self,):
 
-  self.basins = ttf.delineate_basins(self.channels_raster,self.mask,self.fdir)
+  self.basins = fmodpy.fimport('../src/terrain_tools.f90').delineate_basins(self.channels_raster,self.mask,self.fdir)
   ubs = np.unique(self.basins)
   ubs = ubs[ubs != -9999]
   area = []
@@ -141,7 +142,7 @@ class terrain_analysis:
 
  def calculate_height_above_nearest_drainage(self,):
 
-  self.hand = ttf.calculate_depth2channel(self.channels_raster,self.basins,self.fdir,self.demns)
+  self.hand = fmodpy.fimport('../src/terrain_tools.f90').calculate_depth2channel(self.channels_raster,self.basins,self.fdir,self.demns)
 
   return 
 
@@ -174,7 +175,7 @@ class terrain_analysis:
 
 def sink_fill(dem,dx):
 
- return ttf.remove_pits_planchon(dem,dx)
+ return fmodpy.fimport('../src/terrain_tools.f90').remove_pits_planchon(dem,dx)
 
 def delineate_river_network(network):
 
@@ -188,7 +189,7 @@ def delineate_river_network(network):
   x = np.linspace(bounds.bottom+dx/2,bounds.top-dx/2,acc.shape[0])
   y = np.linspace(bounds.left+dx/2,bounds.right-dx/2,acc.shape[1])
   (xs,ys) = np.meshgrid(x,y)
-  (channels,channels_wob,channel_topology,tmp1,crds) = ttf.calculate_channels_wocean_wprop_wcrds(acc,thld,thld,fdir,mask,np.flipud(xs.T),ys.T)
+  (channels,channels_wob,channel_topology,tmp1,crds) = fmodpy.fimport('../src/terrain_tools.f90').calculate_channels_wocean_wprop_wcrds(acc,thld,thld,fdir,mask,np.flipud(xs.T),ys.T)
   #Compute and output the list of the channel positions
   lst_crds = []
   for icrd in range(crds.shape[0]):
@@ -210,13 +211,13 @@ def delineate_basins(channels,fdir,demns,mask=False):
     mask = np.copy(demns)
     mask[demns == -9999] = 0
     mask[demns != -9999] = 1
-  basins = ttf.delineate_basins(channels,mask,fdir)
+  basins = fmodpy.fimport('../src/terrain_tools.f90').delineate_basins(channels,mask,fdir)
 
   return basins
 
 def calculate_height_above_nearest_drainage(channels,basins,fdir,dem):
 
- hand = ttf.calculate_depth2channel(channels,basins,fdir,dem)
+ hand = fmodpy.fimport('../src/terrain_tools.f90').calculate_depth2channel(channels,basins,fdir,dem)
 
  return hand
 
@@ -467,26 +468,26 @@ def compute_basin_delineation_nbasins(dem,mask,res,nbasins):
 
  channel_threshold = 10**6
  #Calculate the d8 accumulation area and flow direction
- (area,fdir) = ttf.calculate_d8_acc(dem,res)
+ (area,fdir) = fmodpy.fimport('../src/terrain_tools.f90').calculate_d8_acc(dem,res)
  area[mask == 0] = 0.0
  #Iterate until the number of basins match the desired (bisection)
  max_threshold = np.max(area) - res**2
  min_threshold = max_threshold/1000
  #Calculate number of basins for the two boundaries
- channels = ttf.calculate_channels(area,channel_threshold,max_threshold,fdir)
- min_basins = ttf.delineate_basins(channels,mask,fdir)
+ channels = fmodpy.fimport('../src/terrain_tools.f90').calculate_channels(area,channel_threshold,max_threshold,fdir)
+ min_basins = fmodpy.fimport('../src/terrain_tools.f90').delineate_basins(channels,mask,fdir)
  min_nbasins = np.unique(min_basins)[1::].size
  #print min_nbasins
  #Min iteration
- channels = ttf.calculate_channels(area,channel_threshold,min_threshold,fdir)
- max_basins = ttf.delineate_basins(channels,mask,fdir)
+ channels = fmodpy.fimport('../src/terrain_tools.f90').calculate_channels(area,channel_threshold,min_threshold,fdir)
+ max_basins = fmodpy.fimport('../src/terrain_tools.f90').delineate_basins(channels,mask,fdir)
  max_nbasins = np.unique(max_basins)[1::].size
  for i in xrange(10):
   #Calculate midpoint
   c = (np.log(max_threshold) + np.log(min_threshold))/2
   #Calculate the number of basins for the given threshold
-  channels = ttf.calculate_channels(area,channel_threshold,np.exp(c),fdir)
-  basins = ttf.delineate_basins(channels,mask,fdir)
+  channels = fmodpy.fimport('../src/terrain_tools.f90').calculate_channels(area,channel_threshold,np.exp(c),fdir)
+  basins = fmodpy.fimport('../src/terrain_tools.f90').delineate_basins(channels,mask,fdir)
   c_nbasins = np.unique(basins)[1::].size
   #print min_nbasins,c_nbasins,max_nbasins
   #Determine if we have found our solution
@@ -495,13 +496,13 @@ def compute_basin_delineation_nbasins(dem,mask,res,nbasins):
   #Create the new boundaries
   if nbasins < c_nbasins:
    min_threshold = np.exp(c)
-   channels = ttf.calculate_channels(area,channel_threshold,min_threshold,fdir)
-   max_basins = ttf.delineate_basins(channels,mask,fdir)
+   channels = fmodpy.fimport('../src/terrain_tools.f90').calculate_channels(area,channel_threshold,min_threshold,fdir)
+   max_basins = fmodpy.fimport('../src/terrain_tools.f90').delineate_basins(channels,mask,fdir)
    max_nbasins = np.unique(max_basins)[1::].size
   else:
    max_threshold = np.exp(c)
-   channels = ttf.calculate_channels(area,channel_threshold,max_threshold,fdir)
-   min_basins = ttf.delineate_basins(channels,mask,fdir)
+   channels = fmodpy.fimport('../src/terrain_tools.f90').calculate_channels(area,channel_threshold,max_threshold,fdir)
+   min_basins = fmodpy.fimport('../src/terrain_tools.f90').delineate_basins(channels,mask,fdir)
    min_nbasins = np.unique(min_basins)[1::].size
 
  #print "Did not converge. Returning the best"
@@ -533,7 +534,7 @@ def define_hrus(basins,dem,channels):
 def calculate_basin_properties(basins,res,latitude,longitude,fdir):
 
  nb = np.max(basins)
- (ah,lath,lonh,hid,nid) = ttf.calculate_basin_properties(basins,res,nb,fdir,
+ (ah,lath,lonh,hid,nid) = fmodpy.fimport('../src/terrain_tools.f90').calculate_basin_properties(basins,res,nb,fdir,
                                latitude,longitude)
  properties = {
                'area':ah,
@@ -929,7 +930,7 @@ def calculate_hillslope_properties(hillslopes,dem,basins,res,latitude,
     longitude,depth2channel,slope,aspect,cplan,cprof,channels,tas,prec):
 
  nh = np.max(hillslopes)+1
- (eh,ah,bh,lath,lonh,erange,hid,d2c,slope,haspect,hcplan,hcprof,hmaxd2c,hmind2c,htwidth,hbwidth,htas,hprec) = ttf.calculate_hillslope_properties(hillslopes,dem,basins,res,nh,latitude,longitude,depth2channel,slope,aspect,cplan,cprof,channels,tas,prec)
+ (eh,ah,bh,lath,lonh,erange,hid,d2c,slope,haspect,hcplan,hcprof,hmaxd2c,hmind2c,htwidth,hbwidth,htas,hprec) = fmodpy.fimport('../src/terrain_tools.f90').calculate_hillslope_properties(hillslopes,dem,basins,res,nh,latitude,longitude,depth2channel,slope,aspect,cplan,cprof,channels,tas,prec)
  properties = {'elevation':eh,
                'area':ah,
                'basin':bh,
@@ -1111,7 +1112,7 @@ def create_nd_histogram(hillslopes,covariates):
 
  #Cleanup the hrus
  hrus = np.array(hrus,order='f').astype(np.int32)
- ttf.cleanup_hillslopes(hrus)
+ fmodpy.fimport('../src/terrain_tools.f90').cleanup_hillslopes(hrus)
  hrus[hrus >= 0] = hrus[hrus >= 0] + 1
 
  return hrus
@@ -1142,7 +1143,7 @@ def create_hillslope_tiles(hillslopes,depth2channel,nbins,bins):
 
  #Cleanup the tiles
  clusters = np.array(clusters,order='f').astype(np.int32)
- ttf.cleanup_hillslopes(clusters)
+ fmodpy.fimport('../src/terrain_tools.f90').cleanup_hillslopes(clusters)
  clusters[clusters >= 0] = clusters[clusters >= 0] + 1
 
  return clusters
@@ -1205,7 +1206,7 @@ def create_hillslope_tiles_updated(hillslopes,depth2channel,hillslopes_full,hp_i
 
  #Cleanup the tiles
  clusters = np.array(clusters,order='f').astype(np.int32)
- ttf.cleanup_hillslopes(clusters)
+ fmodpy.fimport('../src/terrain_tools.f90').cleanup_hillslopes(clusters)
  clusters[clusters >= 0] = clusters[clusters >= 0] + 1
 
  return (clusters,new_hand)
@@ -1375,7 +1376,7 @@ def create_hrus_hydroblocks(hillslopes,htiles,covariates,nclusters,cid):#laura, 
    hrus[mt] = clusters
    maxc = np.max(clusters)+1
  #Cleanup hrus
- ttf.cleanup_hillslopes(hrus)
+ fmodpy.fimport('../src/terrain_tools.f90').cleanup_hillslopes(hrus)
  hrus[hrus >= 0] = hrus[hrus >= 0] + 1
 
  return hrus
@@ -1439,7 +1440,7 @@ def create_hrus(hillslopes,htiles,covariates,nclusters,flag,maxnc,cdir):
    maxc = np.max(clusters)+1
 
  #Cleanup hillslopes
- ttf.cleanup_hillslopes(hrus)
+ fmodpy.fimport('../src/terrain_tools.f90').cleanup_hillslopes(hrus)
  hrus[hrus >= 0] = hrus[hrus >= 0] + 1
 
  #return hrus
@@ -1453,7 +1454,7 @@ def calculate_hru_properties(hillslopes,tiles,channels,res,nhillslopes,hrus,dept
  tmp = np.unique(hrus)
  tmp = tmp[tmp != -9999]
  nhru = tmp.size
- (wb,wt,l,hru_position,hid,tid,hru,hru_area,hru_dem,hru_slope) = ttf.calculate_hru_properties(hillslopes,tiles,channels,basins,nhru,res,nhillslopes,hrus,depth2channel,slope)
+ (wb,wt,l,hru_position,hid,tid,hru,hru_area,hru_dem,hru_slope) = fmodpy.fimport('../src/terrain_tools.f90').calculate_hru_properties(hillslopes,tiles,channels,basins,nhru,res,nhillslopes,hrus,depth2channel,slope)
  #Curate (everyone must have info)
  hru_properties = {'width_bottom':wb,
                    'width_top':wt,
@@ -1635,9 +1636,9 @@ def cluster_hillslopes(hillslopes,covariates,hp_in,nclusters,ws):
  #clusters = model.fit_predict(X)+1
  #Clean up the hillslopes
  hillslopes = np.array(hillslopes,order='f').astype(np.int32)
- ttf.cleanup_hillslopes(hillslopes)
+ fmodpy.fimport('../src/terrain_tools.f90').cleanup_hillslopes(hillslopes)
  #Assign the new ids to each hillslpe
- hillslopes_clusters = ttf.assign_clusters_to_hillslopes(hillslopes,clusters)
+ hillslopes_clusters = fmodpy.fimport('../src/terrain_tools.f90').assign_clusters_to_hillslopes(hillslopes,clusters)
  #Determine the number of hillslopes per cluster
  uclusters = np.unique(clusters)
  nhillslopes = []
@@ -1684,9 +1685,9 @@ def cluster_hillslopes_updated(hillslopes,covariates,hp_in,nclusters,ws,dh,max_n
  clusters = cluster_data(X,nclusters)+1
  #Clean up the hillslopes
  hillslopes = np.array(hillslopes,order='f').astype(np.int32)
- ttf.cleanup_hillslopes(hillslopes)
+ fmodpy.fimport('../src/terrain_tools.f90').cleanup_hillslopes(hillslopes)
  #Assign the new ids to each hillslpe
- hillslopes_clusters = ttf.assign_clusters_to_hillslopes(hillslopes,clusters)
+ hillslopes_clusters = fmodpy.fimport('../src/terrain_tools.f90').assign_clusters_to_hillslopes(hillslopes,clusters)
  #Determine the number of hillslopes per cluster
  uclusters = np.unique(clusters)
  #nhillslopes = []
@@ -1808,9 +1809,9 @@ def cluster_basins_updated(basins,covariates,hp_in,nclusters):
  #exit()
  #Clean up the basins
  #basins = np.array(basins,order='f').astype(np.int32)
- #ttf.cleanup_hillslopes(basins)
+ #fmodpy.fimport('../src/terrain_tools.f90').cleanup_hillslopes(basins)
  #Assign the new ids to each hillslpe
- basins_clusters = ttf.assign_clusters_to_hillslopes(basins,mapping)
+ basins_clusters = fmodpy.fimport('../src/terrain_tools.f90').assign_clusters_to_hillslopes(basins,mapping)
  #Determine the number of basins per cluster
  uclusters = np.unique(clusters)
 
@@ -1878,7 +1879,7 @@ def polygonize_raster(data):
  din = np.copy(data,order='F')
  dout = np.copy(data,order='F')
  dout[:] = -9999
- ttf.polygonize_raster(din,dout)
+ fmodpy.fimport('../src/terrain_tools.f90').polygonize_raster(din,dout)
 
  return dout
 
@@ -1899,7 +1900,7 @@ def compute_polygon_info(polygons,clusters,res):
  cd2o[:] = -9999
 
  #Compute properties
- ttf.compute_polygon_info(polygons,clusters,xs,ys,pcxy,pd2o,cd2o)
+ fmodpy.fimport('../src/terrain_tools.f90').compute_polygon_info(polygons,clusters,xs,ys,pcxy,pd2o,cd2o)
  pd2o = pd2o[pd2o[:,0]!=-9999,:]
  cd2o = cd2o[cd2o[:,0]!=-9999,:]
  pmatrix = scipy.sparse.coo_matrix((np.ones(pd2o.shape[0]),(pd2o[:,0],pd2o[:,1])),shape=(np.int(np.max(polygons)) + 1,np.int(np.max(polygons)) + 1),dtype=np.float32)
